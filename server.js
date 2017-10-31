@@ -404,6 +404,7 @@ function showMainPage(req,res)
 	res.send(htmlString);
 }
 app.post('/api/logout', function(req, res){
+	console.log("Logging out");
 	loginSuccess = false;
 	var htmlString = '\
 	<!DOCTYPE html>\
@@ -413,6 +414,7 @@ app.post('/api/logout', function(req, res){
 		</header>\
 	</html>';
 	res.send(htmlString);
+	console.log("Logout successful");
 });
 
 app.post('/api/login', function(req, res){
@@ -421,6 +423,7 @@ app.post('/api/login', function(req, res){
 	const password = req.body.pass;
 	if(testLogin(username, password)){
 		errorLog += '<br> login valid';
+		console.log("Login valid");
 		data = fs.readFileSync('logins.json', 'utf8');
 		var parsedLogins = JSON.parse(data);
 		for(i=0; i < parsedLogins.users.length; i++){
@@ -429,9 +432,14 @@ app.post('/api/login', function(req, res){
 				loginSuccess = true;
 			}
 		}
+		if(loginSuccess == false){
+			console.log("Login Failed");
+			errorLog += "<br> Login Failed"
+		}
 
 	} else {
-		errorLog += '<br> Login Failed';
+		console.log("Login not valid");
+		errorLog += '<br> Login not valid';
 	}
 		data = '';
 		var htmlString = '\
@@ -445,20 +453,15 @@ app.post('/api/login', function(req, res){
 });
 
 function testLogin(user, pass){
-	if(String(user) == '' || String(pass) == '' ){
+	console.log("Username,Password:" + String(user) + "," + String(pass));
+	if(user == undefined || pass == undefined ){
+		if(user == undefined){
+			console.log("Username was blank");
+		}
+		if(pass == undefined){
+			console.log("Password was blank");
+		}
 		return false;
-	}
-	var illegalUserChars = ["|","\\"," "];
-	for(var illegalChar in illegalUserChars){
-		if(String(user).includes(illegalChar)){
-			return false;
-		}
-	}
-	var illegalPassChars = ["|","\\"," "];
-	for(var illegalChar in illegalPassChars){
-		if(String(pass).includes(illegalChar)){
-			return false;
-		}
 	}
 	return true;
 }

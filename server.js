@@ -406,7 +406,8 @@ function showMainPage(req,res)
 app.post('/api/logout', function(req, res){
 	console.log("Logging out");
 	loginSuccess = false;
-	var htmlString = '\<!DOCTYPE html>\
+	var htmlString = '\
+	<!DOCTYPE html>\
  	<html>\
  	<header>\
  	<meta http-equiv="refresh" content="0; url=/" />\

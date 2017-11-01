@@ -433,7 +433,7 @@ app.post('/api/login', function(req, res){
 		}
 		if(loginSuccess == false){
 			console.log("Login Failed");
-			errorLog += "<br> Login Failed"
+			errorLog += "<br> Login Failed";
 		}
 
 	} else {

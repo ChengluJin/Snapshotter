@@ -406,13 +406,12 @@ function showMainPage(req,res)
 app.post('/api/logout', function(req, res){
 	console.log("Logging out");
 	loginSuccess = false;
-	var node = document.doctype;
-	var htmlString = "<!DOCTYPE "
-         + node.name
-         + (node.publicId ? ' PUBLIC "' + node.publicId + '"' : '')
-         + (!node.publicId && node.systemId ? ' SYSTEM' : '') 
-         + (node.systemId ? ' "' + node.systemId + '"' : '')
-         + '>';
+	var htmlString = '\<!DOCTYPE html>\
+ 	<html>\
+ 	<header>\
+ 	<meta http-equiv="refresh" content="0; url=/" />\
+ 	</header>\
+ 	</html>';
 	res.send(htmlString);
 	console.log("Logout successful");
 });

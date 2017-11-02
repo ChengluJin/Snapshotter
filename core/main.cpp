@@ -49,6 +49,15 @@ static int tick = 0;
 int modbus_port = 502;
 int dnp3_port = 20000;
 
+//Output
+uint8_t bool_output_temp [11];
+
+//Analog I/O
+uint16_t int_output_temp;
+
+//update flag
+int update_flag;
+
 pthread_mutex_t bufferLock; //mutex for the internal buffers
 
 //-----------------------------------------------------------------------------
@@ -114,6 +123,8 @@ int main(int argc,char **argv)
     int opt;
     opterr = 0;
 
+    update_flag = 0;
+
     //======================================================
     //                 READ COMMAND LINE ARGS
     //======================================================
@@ -159,6 +170,10 @@ int main(int argc,char **argv)
         printf("Mutex init failed\n");
         exit(1);
     }
+    else
+    {
+        printf("Mutex init succeeded\n");
+    }
 
     //======================================================
     //              HARDWARE INITIALIZATION
@@ -175,6 +190,7 @@ int main(int argc,char **argv)
     if(dnp3_flag || (!modbus_flag && !dnp3_flag)) {
         pthread_create(&dnp3_thread, NULL, dnp3Thread, NULL);
     }
+    printf("Hardware init succeeded\n");
 
     //======================================================
     //          PERSISTENT STORAGE INITIALIZATION
@@ -202,12 +218,15 @@ int main(int argc,char **argv)
     {
         printf("WARNING: Failed to lock memory\n");
     }
+    printf("real time init succeeded\n");
 #endif
 
 	//gets the starting point for the clock
 	printf("Getting current time\n");
 	struct timespec timer_start;
 	clock_gettime(CLOCK_MONOTONIC, &timer_start);
+	
+	printf("starting main loop\n");
 
 	//======================================================
 	//                    MAIN LOOP
@@ -218,13 +237,26 @@ int main(int argc,char **argv)
 		//attached to the user variables
 		glueVars();
 		
-		updateBuffersIn(); //read input image
+		update_flag = 0;
+
+		//printf("updating buffer in\n");
+
+		update_flag = updateBuffersIn(); //read input image
 
 		pthread_mutex_lock(&bufferLock); //lock mutex
 		config_run__(tick++); // execute plc program logic
 		pthread_mutex_unlock(&bufferLock); //unlock mutex
+		//printf("updating buffer out\n");
 
-		updateBuffersOut(); //write output image
+		update_flag = updateBuffersOut(); //write output image
+
+		//printf("updating output pins\n");
+
+		if (update_flag)
+		{
+			print_log(tick);
+			//printf("updating output pins\n");
+		}
 		
 		updateTime();
 

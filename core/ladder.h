@@ -56,10 +56,12 @@ typedef double   IEC_LREAL;
 //Booleans
 extern IEC_BOOL *bool_input[BUFFER_SIZE][8];
 extern IEC_BOOL *bool_output[BUFFER_SIZE][8];
+extern IEC_BOOL bool_output_temp[11];
 
 //Analog I/O
 extern IEC_UINT *int_input[BUFFER_SIZE];
 extern IEC_UINT *int_output[BUFFER_SIZE];
+extern IEC_UINT int_output_temp;
 
 //Memory
 extern IEC_UINT *int_memory[BUFFER_SIZE];
@@ -71,6 +73,9 @@ extern pthread_mutex_t bufferLock;
 
 //Common task timer
 extern unsigned long long common_ticktime__;
+
+//Update Flag
+extern int update_flag;
 
 //----------------------------------------------------------------------
 //FUNCTION PROTOTYPES
@@ -87,8 +92,9 @@ void updateTime();
 //hardware_layer.cpp
 void initializeHardware();
 //void updateBuffers();
-void updateBuffersIn();
-void updateBuffersOut();
+int updateBuffersIn();
+int updateBuffersOut();
+void print_log(int tick);
 
 //main.cpp
 void sleep_thread(int milliseconds);

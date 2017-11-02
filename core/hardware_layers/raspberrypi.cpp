@@ -94,17 +94,50 @@ void initializeHardware()
 // must be updated to reflect the actual state of the input pins. The mutex buffer_lock
 // must be used to protect access to the buffers on a threaded environment.
 //-----------------------------------------------------------------------------
-void updateBuffersIn()
+int updateBuffersIn()
 {
+	IEC_BOOL temp;
+	update_flag = 0;
+
 	pthread_mutex_lock(&bufferLock); //lock mutex
 
 	//INPUT
 	for (int i = 0; i < MAX_INPUT; i++)
 	{
-		if (bool_input[i/8][i%8] != NULL) *bool_input[i/8][i%8] = digitalRead(inBufferPinMask[i]);
+		if (bool_input[i/8][i%8] != NULL)
+		{
+			temp = *bool_input[i/8][i%8];
+			*bool_input[i/8][i%8] = digitalRead(inBufferPinMask[i]);
+			if (temp != *bool_input[i/8][i%8])
+			{
+				update_flag = 1;
+			}
+		}
+	}
+
+
+	//OUTPUT
+	for (int i = 0; i < MAX_OUTPUT; i++)
+	{
+		if (bool_output[i/8][i%8] != NULL)
+		{
+			bool_output_temp[i] = *bool_output[i/8][i%8];
+			//printf("temp: %d, value: %d\n", bool_output_temp[i], *bool_output[i/8][i%8]);
+		}
+	}
+
+	//ANALOG OUT (PWM)
+	for (int i = 0; i < MAX_ANALOG_OUT; i++)
+	{
+		if (int_output[i] != NULL)
+		{
+			int_output_temp = *int_output[i];
+		}
 	}
 
 	pthread_mutex_unlock(&bufferLock); //unlock mutex
+
+	return update_flag;
 }
 
 //-----------------------------------------------------------------------------
@@ -112,21 +145,79 @@ void updateBuffersIn()
 // must be updated to reflect the actual state of the output pins. The mutex buffer_lock
 // must be used to protect access to the buffers on a threaded environment.
 //-----------------------------------------------------------------------------
-void updateBuffersOut()
+int updateBuffersOut()
 {
 	pthread_mutex_lock(&bufferLock); //lock mutex
 
 	//OUTPUT
 	for (int i = 0; i < MAX_OUTPUT; i++)
 	{
-		if (bool_output[i/8][i%8] != NULL) digitalWrite(outBufferPinMask[i], *bool_output[i/8][i%8]);
+		if (bool_output[i/8][i%8] != NULL)
+		{
+			digitalWrite(outBufferPinMask[i], *bool_output[i/8][i%8]);
+			//printf("temp: %d, value: %d\n", bool_output_temp[i], *bool_output[i/8][i%8]);
+			if (bool_output_temp[i] != *bool_output[i/8][i%8])
+			//if (bool_output_temp[i] != *bool_output[i/8][i%8])
+			{
+				update_flag = 1;
+			}
+		}
 	}
 
 	//ANALOG OUT (PWM)
 	for (int i = 0; i < MAX_ANALOG_OUT; i++)
 	{
-		if (int_output[i] != NULL) pwmWrite(analogOutBufferPinMask[i], (*int_output[i] / 64));
+		if (int_output[i] != NULL)
+		{
+			pwmWrite(analogOutBufferPinMask[i], (*int_output[i] / 64));
+			if (int_output_temp != *int_output[i])
+			{
+				update_flag = 1;
+			}
+		}
 	}
 
+
 	pthread_mutex_unlock(&bufferLock); //unlock mutex
+
+	return update_flag;
 }
+
+void print_log(int tick)
+{
+	//time
+	printf("time: %d\n", tick);
+
+	//INPUT
+	for (int i = 0; i < MAX_INPUT; i++)
+	{
+		if (bool_input[i/8][i%8] != NULL)
+		{
+			printf("Input %d: %x, ",i,  *bool_input[i/8][i%8]);
+		}
+	}
+
+	printf("\n");
+
+	//OUTPUT
+	for (int i = 0; i < MAX_OUTPUT; i++)
+	{
+		if (bool_output[i/8][i%8] != NULL)
+		{
+			printf("Output %d: %x, ", i, *bool_output[i/8][i%8]);
+		}
+	}
+
+	printf("\n");
+
+	//ANALOG OUT (PWM)
+	for (int i = 0; i < MAX_ANALOG_OUT; i++)
+	{
+		if (int_output[i] != NULL)
+		{
+			printf("Analog output: %x\n", (*int_output[i] / 64));
+		}
+	}
+}
+
+

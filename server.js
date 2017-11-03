@@ -5,11 +5,19 @@ var app = express();
 var upload = multer({ dest: './st_files/'});
 var spawn = require('child_process').spawn;
 var plcLog = '';
+var idsLog = '';
 
 var openplc = spawn('./core/openplc');
 openplc.stdout.on('data', function(data)
-{
+{	
 	plcLog += data;
+	var ids_report = data.toString();
+	var pt_index = ids_report.indexOf("plaintext")
+	if (pt_index !== -1){
+	console.log(ids_report.substring(pt_index));
+	idsLog += ids_report.substring(pt_index); 
+	idsLog += '\r\n';
+	}
 	plcLog += '\r\n';
 });
 openplc.stderr.on('data', function(data)
@@ -21,6 +29,7 @@ openplc.on('close', function(code)
 {
 	plcLog += 'OpenPLC application terminated\r\n';
 });
+
 
 var plcRunning = true;
 var compilationOutput = '';
@@ -279,7 +288,7 @@ app.get('/IDS',function(req,res)
 			<p align="center" style="font-family:verdana; font-size:60px; margin-top: 0px; margin-bottom: 10px">SnapShotter Server Logs</p>\
 			<div style="text-align:left; font-family:verdana; font-size:16px"> \
 				<p>';
-					htmlString += plcLog;
+					htmlString += idsLog;
 					htmlString += '\
 				</p>\
 			</div>\

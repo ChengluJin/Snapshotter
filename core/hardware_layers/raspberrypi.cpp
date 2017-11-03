@@ -33,6 +33,8 @@
 #include <pthread.h>
 
 #include "ladder.h"
+#include "aes.h"
+#include "sha256.h"
 
 #define MAX_INPUT 		14
 #define MAX_OUTPUT 		11
@@ -220,4 +222,125 @@ void print_log(int tick)
 	}
 }
 
+void compose_log(int tick, int event_id, BYTE* log)
+{
+	//clear log
+	for (int i = 0; i < 16; i++)
+	{
+		log[i] = 0;
+	}
+	
+	//start log
+	log[0] = 0xFF;
 
+	//event id in this log
+	log[1] = (event_id & (0x0000ff00))>>8;
+	log[2] = (event_id & (0x000000ff));
+
+	//device ID
+	log[3] = 0x00;
+	log[4] = 0x01;
+
+	//time
+	log[5] = (tick & (0xff000000)) >> 24;
+	log[6] = (tick & (0x00ff0000)) >> 16;
+	log[7] = (tick & (0x0000ff00)) >> 8;
+	log[8] = tick & (0x000000ff);
+
+	//Digital Input
+	BYTE temp_byte[2];
+	temp_byte[0] = 0;
+	temp_byte[1] = 0;
+	for (int i = 0; i < MAX_INPUT; i++)
+	{
+		if (bool_input[i/8][i%8] != NULL)
+		{
+			if (*bool_input[i/8][i%8] != 0)
+			{
+				temp_byte[i/8] = temp_byte[i/8] | (0x80>>(i%8));	
+			}
+		}
+	}
+
+	log[9] = temp_byte[0];
+	log[10] = temp_byte[1];
+
+	//Digital Output
+	temp_byte[0] = 0;
+	temp_byte[1] = 0;
+	for (int i = 0; i < MAX_OUTPUT; i++)
+	{
+		if (bool_output[i/8][i%8] != NULL)
+		{
+			if (*bool_output[i/8][i%8] != 0)
+			{
+				temp_byte[i/8] = temp_byte[i/8] | (0x80>>(i%8));	
+			}
+		}
+	}
+
+	log[11] = temp_byte[0];
+	log[12] = temp_byte[1];
+
+	//Analog output
+	if (int_output[0] != NULL)
+	{
+		log[13] = ((*int_output[0])>>8); 
+		log[14] = ((*int_output[0])); 
+	}
+
+	//End
+	log[15] = 0xFF;
+}
+	
+
+
+void encrypt_log(int tick, int event_id)
+{
+	WORD key_schedule[60];
+	BYTE log[16];
+	BYTE encrypted_log[16];
+	BYTE buf[SHA256_BLOCK_SIZE];
+	SHA256_CTX ctx;
+
+	compose_log(tick, event_id, log);
+
+	aes_key_setup(key, key_schedule, 128);
+
+	aes_encrypt(log, encrypted_log, key_schedule, 128);
+	
+	printf("plaintext log:");
+	for (int i = 0; i < 16; i++)
+	{	
+		printf("%02x", log[i]);
+		log[i] = 0;
+	}
+	printf("\n");
+	printf("ciphertext log:");
+	for (int i = 0; i < 16; i++)
+	{	
+		printf("%02x", encrypted_log[i]);
+	}
+
+	sha256_init(&ctx);
+	sha256_update(&ctx, key, 16);
+	sha256_final(&ctx, buf);
+	//just for demo
+	///////////////////////
+	printf("\n");
+	printf("Old Key:");
+	for (int i = 0; i < 16; i++)
+	{
+		printf("%02x", key[i]);
+		key[i] = buf[i];
+	}
+
+	printf("\n");
+	printf("New Key:");
+	for (int i = 0; i < 16; i++)
+	{
+		printf("%02x", key[i]);
+	}
+	/////////////////////
+
+}

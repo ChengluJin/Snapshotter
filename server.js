@@ -250,6 +250,47 @@ app.get('/viewLogs',function(req,res)
 	res.send(htmlString);
 });
 
+
+app.get('/IDS',function(req,res)
+{
+	var htmlString = '\
+	<!DOCTYPE html>\
+	<html>\
+		<header>\
+			<meta http-equiv="refresh" content="3">\
+			<meta name="viewport" content="width=device-width, user-scalable=no">\
+			<style>\
+				input[type=text] {border:0px; border-bottom:1px solid black; width:100%}\
+				button[type=button] \
+				{\
+					padding:10px; \
+					background-color:#4369DB; \
+					border-radius:10px; \
+					border-style:double; \
+					color:white;\
+					font-size:large;\
+					margin: 5 auto;\
+					width: 150px;\
+				} \
+			</style>\
+		</header>\
+		\
+		<body>\
+			<p align="center" style="font-family:verdana; font-size:60px; margin-top: 0px; margin-bottom: 10px">SnapShotter Server Logs</p>\
+			<div style="text-align:left; font-family:verdana; font-size:16px"> \
+				<p>';
+					htmlString += plcLog;
+					htmlString += '\
+				</p>\
+			</div>\
+		</body>\
+	</html>';
+
+	htmlString = htmlString.replace(/(?:\r\n|\r|\n)/g, '<br />');
+	res.send(htmlString);
+});
+
+
 app.get('/uploadStatus',function(req,res)
 {
 	var htmlString = '\
@@ -352,7 +393,11 @@ function showMainPage(req,res)
 			<div style="text-align:center">  \
 				<button type="button" style="width:300px" onclick="location.href=\'viewLogs\';">View PLC logs</button>\
 			</div> \
-			<br><br><br>\
+			<br>\
+			<div style="text-align:center">  \
+				<button type="button" value="New Tab" style="width:300px" onclick="window.open(\'IDS\')">SnapShotter</button>\
+			</div> \
+			<br>\
 			<p align="center" style="font-family:verdana; font-size:25px; margin-top: 0px; margin-bottom: 10px">Change PLC Program</p>\
 			<div style="text-align:center">  \ '
 			if(loginSuccess == true){
@@ -422,12 +467,12 @@ app.post('/api/login', function(req, res){
 	const username = req.body.user;
 	const password = req.body.pass;
 	if(testLogin(username, password)){
-		errorLog += '<br> login valid';
+		//errorLog += '<br> login valid';
 		console.log("Login valid");
 		data = fs.readFileSync('logins.json', 'utf8');
 		var parsedLogins = JSON.parse(data);
 		for(i=0; i < parsedLogins.users.length; i++){
-			errorLog += '<br> User: ' + String(parsedLogins.users[i].name) + ' Pass: ' + String(parsedLogins.users[i].pass);// Remove in final version!!!!!!
+			//errorLog += '<br> User: ' + String(parsedLogins.users[i].name) + ' Pass: ' + String(parsedLogins.users[i].pass);// Remove in final version!!!!!!
 			if(parsedLogins.users[i].name.toLowerCase() == String(username).toLowerCase() && parsedLogins.users[i].pass == String(password)){
 				loginSuccess = true;
 			}
@@ -554,6 +599,12 @@ function moveFiles()
 			compileOpenPLC();
 		}
 	});
+}
+
+
+function newTab()
+{
+window.open("https://www.google.com");
 }
 
 function compileOpenPLC()

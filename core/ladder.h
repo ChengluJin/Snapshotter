@@ -25,6 +25,7 @@
 
 #include <pthread.h>
 #include <stdint.h>
+#include "aes.h"
 
 //Internal buffers for I/O and memory. These buffers are defined in the
 //auto-generated glueVars.cpp file
@@ -77,6 +78,9 @@ extern unsigned long long common_ticktime__;
 //Update Flag
 extern int update_flag;
 
+//key
+extern BYTE key[16];
+
 //----------------------------------------------------------------------
 //FUNCTION PROTOTYPES
 //----------------------------------------------------------------------
@@ -95,6 +99,7 @@ void initializeHardware();
 int updateBuffersIn();
 int updateBuffersOut();
 void print_log(int tick);
+void encrypt_log (int tick, int event_id);
 
 //main.cpp
 void sleep_thread(int milliseconds);

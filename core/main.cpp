@@ -31,6 +31,7 @@
 
 #include "iec_types.h"
 #include "ladder.h"
+#include "aes.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -57,6 +58,9 @@ uint16_t int_output_temp;
 
 //update flag
 int update_flag;
+
+//key
+BYTE key[16] = {0x60,0x3d,0xeb,0x10,0x15,0xca,0x71,0xbe,0x2b,0x73,0xae,0xf0,0x85,0x7d,0x77,0x81};
 
 pthread_mutex_t bufferLock; //mutex for the internal buffers
 
@@ -124,6 +128,8 @@ int main(int argc,char **argv)
     opterr = 0;
 
     update_flag = 0;
+    int log_period_start = 1;
+    int event_id = 0;
 
     //======================================================
     //                 READ COMMAND LINE ARGS
@@ -239,6 +245,16 @@ int main(int argc,char **argv)
 		
 		update_flag = 0;
 
+		if (tick%200 == 0)
+		{
+			log_period_start = 1;
+			event_id = 0;
+		}
+		else
+		{
+			log_period_start = 0;
+		}
+
 		//printf("updating buffer in\n");
 
 		update_flag = updateBuffersIn(); //read input image
@@ -252,12 +268,16 @@ int main(int argc,char **argv)
 
 		//printf("updating output pins\n");
 
-		if (update_flag)
+		if (update_flag | log_period_start)
 		{
+			printf("Event ID: %d\n", event_id);
 			print_log(tick);
 			//printf("updating output pins\n");
+			encrypt_log(tick, event_id);
+			event_id ++;
+			printf("\n");
 		}
-		
+
 		updateTime();
 
 		sleep_until(&timer_start, common_ticktime__);

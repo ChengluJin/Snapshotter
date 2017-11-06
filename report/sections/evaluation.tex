@@ -35,3 +35,7 @@ To summarize, there is no way for the attackers to avoid detecting by our intrus
 Since our solution requires the logs from PLCs to be sent periodically, it is possible for the server to have a detection latency no larger than a reporting period. Hence, when we select the parameter of reporting period, we need to consider this detection latency as well. 
    
 \subsection{Performance Overhead}
+
+We run the simple helloworld logic on the OpenPLC platform. It takes 10.375 microseconds for the original OpenPLC implementation to execute all the program in one scan cycle. Using the original OpenPLC implementation as the baseline design, we measured the performance overhead of our system when it has one event in one period, meaning that no input/output changes in this period. The overhead is 21.6\%, assuming each period has 1000 scan cycles. When more events happening, we will have more performance overhead. For examples, when four events happened in one period, the overhead will become 33.0\%.   
+
+  

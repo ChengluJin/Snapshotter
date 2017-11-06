@@ -3,23 +3,24 @@
 \begin{figure*}[h]
   \centering
     \includegraphics[width=\textwidth]{figs/legacy_system}
-    \caption{Data format of one event in the log.}
-    \label{fig:data_format}
+    \caption{Our proposed system with legacy PLCs.}
+    \label{fig:legacy}
 \end{figure*}
 
 \begin{figure*}[h]
   \centering
     \includegraphics[width=0.8\textwidth]{figs/modern_system}
-    \caption{Data format of one event in the log.}
-    \label{fig:data_format}
+    \caption{Our proposed system with modern PLCs.}
+    \label{fig:modern}
 \end{figure*}
 
 
-A host-based intrusion detection (HIDS) is commonly used for monitoring specific activities and characteristics of a single device by means of software or appliance-based components known as agents. In this regard, in this project, we propose a very lightweight HIDS module on the OpenPLC framework in order to keep track of input/output operations on the device.
+%A host-based intrusion detection (HIDS) is commonly used for monitoring specific activities and characteristics of a single device by means of software or appliance-based components known as agents. In this regard, 
+In this project, we implement a very lightweight HIDS module in the OpenPLC framework~\cite{alves2014openplc} in order to keep track of input/output operations on the device.
 
-To locate signs of likely security related incidents, the HIDS's agent, which we call it the \emph{snapshotter} agent, essentially, takes a snapshot of the input/output values together with the current time stamps on each PLC, encrypts the log, and sends them \emph{in a stealthy secure way} to a server periodically. Forward security is achieved in the key management of the encryption key. Next key is updated to the hash of the current key after each encryption. Therefore, even the adversary compromised the device completely, meaning that the encryption key is also exposed to the adversary, he is still not able to tell from the previous encrypted logs that whether he is caught by the intrusion detection systems or not.   
+To locate the intrusions, the \emph{snapshotter} agent, essentially, takes a snapshot of the input/output values together with the current time stamps on each PLC, encrypts the log, and sends them \emph{in a stealthy secure way} to a server periodically. Forward security is achieved in the key management of the encryption key. Next key is updated to the hash of the current key after each encryption. Therefore, even the adversary compromised the device completely, meaning that the encryption key is also exposed to the adversary, he is still not able to tell from the previous encrypted logs that whether he is caught by the intrusion detection systems or not.   
 
-Upon receiving the reports from PLCs, the server can use the received input and known PLC logic to simulate the expected output of the PLC. If the received PLC output does not match with the expected (simulated) output, then the server will conclude that this PLC has been compromised, so it should be restarted and reprogrammed by a correct logic program. Of course, for a specific application, the server can have a predefined set of acceptable input/output pairs for each device. This will reduce the computation of the server side. Besides the input/output behaviors, the integrity of the log can be checked at the server, in case that the attacker has already compromised the device.
+Upon receiving the reports from PLCs, the server can use the received input and known PLC logic to simulate the expected output of the PLC. If the received PLC output does not match with the expected (simulated) output, then the server will conclude that this PLC has been compromised, so it should be restarted and restored to a clean state/reprogrammed by a correct logic program. Of course, for a specific application, the server can have a predefined set of acceptable input/output pairs for each device. This will reduce the computation of the server side. Besides the input/output behaviors, the integrity of the log can be checked at the server, in case that the attacker has already compromised the device.
 
 Our defense mechanism can be summarized in security related information gathering and logging, incident identification, and taking effective actions to foil such incidents.
 
@@ -40,6 +41,9 @@ This solution has five features that make our proposed scheme very suitable to t
 
 \end{enumerate} 
 
+When our solution is implemented on the legacy PLCs, the system will be like Figure~\ref{fig:legacy}. The legacy PLCs are black boxes to us, we can only record input/output values of them and send this information as logs to the server. The advantage of applying our solution on legacy PLCs is that the PLCs and the logging mechanism are isolated from one another. An adversary, who compromise the legacy PLCs, still cannot tamper with the logging mechanism, which leads to an easy detection for the server. 
+
+In contrast, when our logging mechanism is implemented in modern PLCs, no extra new hardware is required, and we can even record more information than simply input/output values. This will help the server know more about the status of the PLCs. But since the PLC logic are running together with the logging mechanism on the same device, compromising PLCs only means compromising the logging scheme and the encryption keys. Fortunately, our solution can maintain the security even when the encryption key is exposed to the adversary. We provide more detailed analysis in Section. IV.   
 
 \subsection{Information Gathering}
 

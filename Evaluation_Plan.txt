@@ -1,0 +1,27 @@
+The usage of our implementaion is exactly same as the original OpenPLC
+implementation. 
+1. 
+run "./build.sh"
+select Y
+select 4 for raspberry pi
+
+2.
+run "sudo nodejs server.js"
+
+3.
+open browser
+got to "localhost:8080"
+
+4.
+upload the code "malicious_code.st" in st_files folder. In st_files folder,
+"malicious_code.st" will keep the LED on for 3 seconds after the switch
+turns off. But the clean state "helloworld.st" will keep the LED on for 2
+seconds.   
+
+5.
+Open "Snapshotter IDS Log"
+
+6.
+Swith the button on the board to trigger the malicious behaviour.  You will
+see that the intrusion is detected, and the system is restored to a clean
+state. This means that "helloworld.st" is uploaded automatically. 

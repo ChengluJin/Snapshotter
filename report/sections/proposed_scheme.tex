@@ -1,5 +1,20 @@
 \section{Proposed Defense Scheme}
 
+\begin{figure*}[h]
+  \centering
+    \includegraphics[width=\textwidth]{figs/legacy_system}
+    \caption{Data format of one event in the log.}
+    \label{fig:data_format}
+\end{figure*}
+
+\begin{figure*}[h]
+  \centering
+    \includegraphics[width=0.8\textwidth]{figs/modern_system}
+    \caption{Data format of one event in the log.}
+    \label{fig:data_format}
+\end{figure*}
+
+
 A host-based intrusion detection (HIDS) is commonly used for monitoring specific activities and characteristics of a single device by means of software or appliance-based components known as agents. In this regard, in this project, we propose a very lightweight HIDS module on the OpenPLC framework in order to keep track of input/output operations on the device.
 
 To locate signs of likely security related incidents, the HIDS's agent, which we call it the \emph{snapshotter} agent, essentially, takes a snapshot of the input/output values together with the current time stamps on each PLC, encrypts the log, and sends them \emph{in a stealthy secure way} to a server periodically. Forward security is achieved in the key management of the encryption key. Next key is updated to the hash of the current key after each encryption. Therefore, even the adversary compromised the device completely, meaning that the encryption key is also exposed to the adversary, he is still not able to tell from the previous encrypted logs that whether he is caught by the intrusion detection systems or not.   

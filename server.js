@@ -229,7 +229,7 @@ app.get('/viewLogs',function(req,res)
 		</header>\
 		\
 		<body>\
-			<p align="center" style="font-family:verdana; font-size:60px; margin-top: 0px; margin-bottom: 10px">OpenPLC Server</p>\
+			<p align="center" style="font-family:verdana; font-size:60px; margin-top: 0px; margin-bottom: 10px">View PLC logs</p>\
 			<div style="text-align:left; font-family:verdana; font-size:16px"> \
 				<p>';
 					htmlString += plcLog;
@@ -544,10 +544,10 @@ function intrusionDetection(indata)
 	idsLog += '******Intrusion is detected!!!******'; 
 	idsLog += '\r\n';
 	idsLog = '******Alert: Intrusion is detected!!!******\r\n';
-	idsLog += 'Response: Reseting PLC to last clean state...\r\n';
 	idsLog += 'Response: Ending malicious program...';
-	console.log('Reseting PLC to last clean state...');
+	idsLog += 'Response: Resetting PLC to the clean state...\r\n';
 	console.log('Ending malicious program...');
+	console.log('Resetting PLC to the clean state...');
 	openplc.kill('SIGTERM');
 	plcRunning = false;
 	compilationOutput = '';

@@ -1,24 +1,20 @@
-var fs = require('fs');
 var express = require("express");
 var multer = require('multer');
 var app = express();
 var upload = multer({ dest: './st_files/'});
 var spawn = require('child_process').spawn;
 var plcLog = '';
+var time = '';
+var outCheck = '';
 var idsLog = '';
 
 var openplc = spawn('./core/openplc');
 openplc.stdout.on('data', function(data)
-{	
+{
 	plcLog += data;
-	var ids_report = data.toString();
-	var pt_index = ids_report.indexOf("plaintext")
-	if (pt_index !== -1){
-	console.log(ids_report.substring(pt_index));
-	idsLog += ids_report.substring(pt_index); 
-	idsLog += '\r\n';
-	}
+	intrusionDetection(data);
 	plcLog += '\r\n';
+	
 });
 openplc.stderr.on('data', function(data)
 {
@@ -30,29 +26,28 @@ openplc.on('close', function(code)
 	plcLog += 'OpenPLC application terminated\r\n';
 });
 
-
 var plcRunning = true;
 var compilationOutput = '';
 var compilationEnded = false;
 var compilationSuccess = false;
 var uploadedFileName = '';
 var uploadedFilePath = '';
-var loginSuccess = false;
-var errorLog = '';
 
 app.use(multer({ dest: './st_files/',
-    rename: function (fieldname, filename)
+    rename: function (fieldname, filename) 
     {
 		return filename;
     },
-	onFileUploadStart: function (file)
+	onFileUploadStart: function (file) 
 	{
 		console.log(file.originalname + ' is starting ...');
 	},
-	onFileUploadComplete: function (file)
+	onFileUploadComplete: function (file) 
 	{
 		uploadedFileName = file.originalname;
+		console.log("Uploaded file name:	",uploadedFileName);
 		uploadedFilePath = file.path;
+		console.log("Uploaded file name:	",uploadedFilePath);
 	}
 }));
 
@@ -82,10 +77,10 @@ app.get('/run',function(req,res)
 		{
 			plcLog += 'OpenPLC application terminated\r\n';
 		});
-
+		
 		plcRunning = true;
 	}
-
+	
 	var htmlString = '\
 	<!DOCTYPE html>\
 	<html>\
@@ -93,7 +88,7 @@ app.get('/run',function(req,res)
 			<meta http-equiv="refresh" content="0; url=/" />\
 		</header>\
 	</html>';
-
+	
 	res.send(htmlString);
 });
 
@@ -105,7 +100,7 @@ app.get('/stop',function(req,res)
 		openplc.kill('SIGTERM');
 		plcRunning = false;
 	}
-
+	
 	var htmlString = '\
 	<!DOCTYPE html>\
 	<html>\
@@ -113,19 +108,19 @@ app.get('/stop',function(req,res)
 			<meta http-equiv="refresh" content="0; url=/" />\
 		</header>\
 	</html>';
-
+	
 	res.send(htmlString);
 });
 
-app.post('/api/upload',function(req,res){
-	if(loginSuccess == true){
-    upload(req,res,function(err)
+app.post('/api/upload',function(req,res)
+{
+    upload(req,res,function(err) 
     {
-        if(err)
+        if(err) 
         {
             return res.end("Error uploading file.");
         }
-
+        
 		var htmlString = '\
 		<!DOCTYPE html>\
 		<html>\
@@ -133,9 +128,9 @@ app.post('/api/upload',function(req,res){
 				<meta http-equiv="refresh" content="0; url=/uploadStatus" />\
 			</header>\
 		</html>';
-
+		
 		res.send(htmlString);
-
+		
 		console.log(uploadedFileName + ' uploaded to  ' + uploadedFilePath);
 		console.log('finishing old program...');
 		openplc.kill('SIGTERM');
@@ -145,28 +140,17 @@ app.post('/api/upload',function(req,res){
 		compilationSuccess = false;
 		optimizeCode(uploadedFileName);
     });
-	}
-	else{
-		var htmlString = '\
-		<!DOCTYPE html>\
-		<html>\
-			<header>\
-				<meta http-equiv="refresh" content="0; url=/" />\
-			</header>\
-		</html>';
-		errorLog = 'Please Log In First.'
-		res.send(htmlString);
-		}});
+});
 
 app.post('/api/changeModbusCfg',function(req,res)
 {
-    upload(req,res,function(err)
+    upload(req,res,function(err) 
     {
-        if(err)
+        if(err) 
         {
             return res.end("Error uploading file.");
         }
-
+		
         var htmlString = '\
 		<!DOCTYPE html>\
 		<html>\
@@ -193,9 +177,9 @@ app.post('/api/changeModbusCfg',function(req,res)
 				<p align="center" style="font-family:verdana; font-size:25px; margin-top: 0px; margin-bottom: 10px"><br>Modbus configuration file uploaded</p>\
 			</body>\
 		</html>';
-
+		
 		res.send(htmlString);
-
+		
 		var mover = spawn('mv', ['-f', './st_files/' + uploadedFileName, './core/mbconfig.cfg']);
 		mover.on('close', function(code)
 		{
@@ -254,10 +238,11 @@ app.get('/viewLogs',function(req,res)
 			</div>\
 		</body>\
 	</html>';
-
+	
 	htmlString = htmlString.replace(/(?:\r\n|\r|\n)/g, '<br />');
 	res.send(htmlString);
 });
+
 
 
 app.get('/IDS',function(req,res)
@@ -285,7 +270,7 @@ app.get('/IDS',function(req,res)
 		</header>\
 		\
 		<body>\
-			<p align="center" style="font-family:verdana; font-size:60px; margin-top: 0px; margin-bottom: 10px">SnapShotter Server Logs</p>\
+			<p align="center" style="font-family:verdana; font-size:60px; margin-top: 0px; margin-bottom: 10px">SnapShotter IDS Logs</p>\
 			<div style="text-align:left; font-family:verdana; font-size:16px"> \
 				<p>';
 					htmlString += idsLog;
@@ -298,6 +283,8 @@ app.get('/IDS',function(req,res)
 	htmlString = htmlString.replace(/(?:\r\n|\r|\n)/g, '<br />');
 	res.send(htmlString);
 });
+
+
 
 
 app.get('/uploadStatus',function(req,res)
@@ -355,7 +342,7 @@ app.get('/uploadStatus',function(req,res)
 			</div>\
 		</body>\
 	</html>';
-
+	
 	htmlString = htmlString.replace(/(?:\r\n|\r|\n)/g, '<br />');
 	res.send(htmlString);
 });
@@ -368,6 +355,7 @@ function showMainPage(req,res)
 		<header>\
 			<meta name="viewport" content="width=device-width, user-scalable=no">\
 			<style>\
+				input[type=text] {border:0px; border-bottom:1px solid black; width:100%}\
 				button[type=button] \
 				{\
 					padding:10px; \
@@ -400,17 +388,16 @@ function showMainPage(req,res)
 			</div> \
 			<br>\
 			<div style="text-align:center">  \
-				<button type="button" style="width:300px" onclick="location.href=\'viewLogs\';">View PLC logs</button>\
+				<button type="button" value="New Tab"  style="width:300px" onclick="window.open(\'viewLogs\')">View PLC logs</button>\
 			</div> \
 			<br>\
 			<div style="text-align:center">  \
-				<button type="button" value="New Tab" style="width:300px" onclick="window.open(\'IDS\')">SnapShotter</button>\
+				<button type="button" value="New Tab"  style="width:300px" onclick="window.open(\'IDS\')">SnapShotter IDS Logs</button>\
 			</div> \
-			<br>\
+			<br><br><br>\
 			<p align="center" style="font-family:verdana; font-size:25px; margin-top: 0px; margin-bottom: 10px">Change PLC Program</p>\
-			<div style="text-align:center">  \ '
-			if(loginSuccess == true){
-				htmlString +='<form id        =  "uploadForm"\
+			<div style="text-align:center">  \
+				<form id        =  "uploadForm"\
 					enctype   =  "multipart/form-data"\
 					action    =  "/api/upload"\
 					method    =  "post">\
@@ -418,25 +405,7 @@ function showMainPage(req,res)
 					<input type="file" name="file" id="file" class="inputfile" accept=".st">\
 					<input type="submit" value="Upload Program" name="submit">\
 				</form>\
-				<form id="logoutButton" action="/api/logout" method="post">\
-					<input type="submit" value="Log Out">\
-				<form/>'
-			} else{
-				htmlString += '<form id="loginForm"\
-					enctype   =  "multipart/form-data"\
-					action    =  "/api/login"\
-					method    =  "post">\
-					<br>\
-					<label><b>Username: <b/><label\>\
-					<input type="text" name="user" id="user" class="login" placeholder="Username" value="">\
-					<br>\
-					<label><b>Password: <b/><label/>\
-					<input type="password" name="pass" id="pass" class="login" placeholder="Password" value="">\
-					<br>\
-					<input type="submit" value="Login" name="submit">\
-				</form>\ '
-			}
-			htmlString += '</div> \
+			</div> \
 			<br><br><br>\
 			<p align="center" style="font-family:verdana; font-size:25px; margin-top: 0px; margin-bottom: 10px">Change Modbus Master Configuration</p>\
 			<p align="center" style="font-family:verdana; font-size:14px; margin-top: 0px; margin-bottom: 10px">Changing this only have effect if OpenPLC is using the Modbus Master Driver</p>\
@@ -450,74 +419,10 @@ function showMainPage(req,res)
 					<input type="submit" value="Upload Configuration" name="submit">\
 				</form>\
 			</div> \
-			<div style="text-align:center"> <span>' + errorLog +  ' <span/>\
-			<div/>\
 		</body>\
 	</html>';
-
+	
 	res.send(htmlString);
-}
-app.post('/api/logout', function(req, res){
-	console.log("Logging out");
-	loginSuccess = false;
-	var htmlString = '\
-	<!DOCTYPE html>\
- 	<html>\
- 	<header>\
- 	<meta http-equiv="refresh" content="0; url=/" />\
- 	</header>\
- 	</html>';
-	res.send(htmlString);
-	console.log("Logout successful");
-});
-
-app.post('/api/login', function(req, res){
-	errorLog = '';
-	const username = req.body.user;
-	const password = req.body.pass;
-	if(testLogin(username, password)){
-		//errorLog += '<br> login valid';
-		console.log("Login valid");
-		data = fs.readFileSync('logins.json', 'utf8');
-		var parsedLogins = JSON.parse(data);
-		for(i=0; i < parsedLogins.users.length; i++){
-			//errorLog += '<br> User: ' + String(parsedLogins.users[i].name) + ' Pass: ' + String(parsedLogins.users[i].pass);// Remove in final version!!!!!!
-			if(parsedLogins.users[i].name.toLowerCase() == String(username).toLowerCase() && parsedLogins.users[i].pass == String(password)){
-				loginSuccess = true;
-			}
-		}
-		if(loginSuccess == false){
-			console.log("Login Failed");
-			errorLog += "<br> Login Failed";
-		}
-
-	} else {
-		console.log("Login not valid");
-		errorLog += '<br> Login not valid';
-	}
-		data = '';
-		var htmlString = '\
-		<!DOCTYPE html>\
-		<html>\
-			<header>\
-				<meta http-equiv="refresh" content="0; url=/" />\
-			</header>\
-		</html>';
-		res.send(htmlString);
-});
-
-function testLogin(user, pass){
-	console.log("Username,Password:" + String(user) + "," + String(pass));
-	if(user == undefined || pass == undefined ){
-		if(user == undefined){
-			console.log("Username was blank");
-		}
-		if(pass == undefined){
-			console.log("Password was blank");
-		}
-		return false;
-	}
-	return true;
 }
 
 function optimizeCode(fileName)
@@ -525,7 +430,7 @@ function optimizeCode(fileName)
 	console.log('optimizing ST code...');
 	compilationOutput += 'optimizing ST code...\r\n';
 	var optimizer = spawn('./st_optimizer', ['./st_files/' + fileName, './st_files/' + fileName]);
-
+	
 	optimizer.stdout.on('data', function(data)
 	{
 		console.log('' + data);
@@ -560,7 +465,7 @@ function compileProgram(fileName)
 	console.log('compiling new program...');
 	compilationOutput += 'compiling new program...\r\n';
 	var compiler = spawn('./iec2c', ['./st_files/' + fileName]);
-
+	
 	compiler.stdout.on('data', function(data)
 	{
 		console.log('' + data);
@@ -611,31 +516,78 @@ function moveFiles()
 }
 
 
-function newTab()
-{
-window.open("https://www.google.com");
-}
+
+function intrusionDetection(indata)
+	{
+	var ids_report = indata.toString();
+	var pt_index = ids_report.indexOf("plaintext");
+	var currentOp ='';
+	var currentTime ='';
+	if (pt_index !== -1){
+	console.log(ids_report.substring(pt_index));
+	//plcLog += ids_report.substring(pt_index); 
+	//plcLog += '\r\n';
+	currentOp = ids_report.substring(pt_index+36,pt_index+40);
+	outCheck += currentOp;
+	currentTime = ids_report.substring(pt_index+24,pt_index+32);
+	time += currentTime;
+	idsLog += "\n Current op: "+currentOp+"\n"+"Previous op: "+outCheck.substring(outCheck.length -8,outCheck.length-4)+"\n"+"Current time: "+parseInt(currentTime,16)+"\n"+"Previous time: "+parseInt(time.substring(time.length -16,time.length-8),16)+"\n"; 
+	//idsLog += '\r\n';
+	//console.log("outputCheck: ",outCheck);
+	//console.log("Time: ",time);
+	console.log("Current op: ",currentOp);
+	console.log("Previous op: ",outCheck.substring(outCheck.length -8,outCheck.length-4));
+	console.log("Current time: ",parseInt(currentTime,16));
+	console.log("Previous time: ",parseInt(time.substring(time.length -16,time.length-8),16));
+	if (currentOp == "0000" && outCheck.substring(outCheck.length -8,outCheck.length-4)=="8000" && (parseInt(currentTime,16)-(parseInt(time.substring(time.length -16,time.length-8),16)))!=40){
+	console.log('******Intrusion is detected!!!******');
+	idsLog += '******Intrusion is detected!!!******'; 
+	idsLog += '\r\n';
+	idsLog = '******Alert: Intrusion is detected!!!******\r\n';
+	idsLog += 'Response: Reseting PLC to last clean state...\r\n';
+	idsLog += 'Response: Ending malicious program...';
+	console.log('Reseting PLC to last clean state...');
+	console.log('Ending malicious program...');
+	openplc.kill('SIGTERM');
+	plcRunning = false;
+	compilationOutput = '';
+	compilationEnded = false;
+	compilationSuccess = false;
+	//idsLog = 'Reseting PLC to last clean state...\r\n';
+	//openplc = spawn('./core/openplc');
+	uploadedFileName = 'helloworld.st';
+	uploadedFilePath = 'st_files/helloworld.st'
+	compileProgram(uploadedFileName);
+	}
+	}
+	}
+
+
+
+
+
+
 
 function compileOpenPLC()
 {
 	console.log('compiling OpenPLC...');
 	compilationOutput += 'compiling OpenPLC...\r\n';
-
+	
 	var exec = require('child_process').exec;
-	exec('./build_core.sh', function(error, stdout, stderr)
+	exec('./build_core.sh', function(error, stdout, stderr) 
 	{
 		console.log('stdout: ' + stdout);
 		console.log('stderr: ' + stderr);
 		compilationOutput += stdout + '\r\n';
 		compilationOutput += stderr + '\r\n';
-		if (error !== null)
+		if (error !== null) 
 		{
 			console.log('exec error: ' + error);
 			console.log('error compiling OpenPLC. Please check your program');
 			compilationOutput += 'exec error: ' + error + '\r\n';
 			compilationOutput += 'error compiling OpenPLC. Please check your program\r\n';
 		}
-		else
+		else 
 		{
 			console.log('compiled without errors');
 			compilationOutput += 'compiled without errors\r\n';
@@ -645,6 +597,8 @@ function compileOpenPLC()
 			openplc.stdout.on('data', function(data)
 			{
 				plcLog += data;
+				intrusionDetection(data);
+								
 				plcLog += '\r\n';
 			});
 			openplc.stderr.on('data', function(data)
@@ -656,7 +610,7 @@ function compileOpenPLC()
 			{
 				plcLog += 'OpenPLC application terminated\r\n';
 			});
-
+			
 			plcRunning = true;
 			compilationSuccess = true;
 		}

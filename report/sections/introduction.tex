@@ -1,22 +1,26 @@
 
 \section{Introduction}
 
-A host-based intrusion detection (HIDS) is commonly used for monitoring specific activities and characteristics of a single device by means of software or appliance-based components known as agents. In this regard, in this project, we implemented a very lightweight HIDS module on the OpenPLC framework in order to keep track of input/output operations on the device.
+A host-based intrusion detection (HIDS) is commonly used for monitoring specific activities and characteristics of a single device by means of software or appliance-based components known as agents \cite{ids}. A HIDS is able to provide system level checks (e.g. file integrity checking, log analysis, rootkit detection, etc.), detailed logging information, encrypted communications monitoring, and very small false positives' rates due to an ample knowledge of the configurations and characteristics of the host under its watch, in addition to having a thorough operating sytem level access to communication streams and sessions. 
 
-To locate signs of likely security related incidents, the HIDS's agent, which we call it the \emph{snapshotter} agent, essentially, takes a snapshot of the input/output operations
-happening on each PLC and sends them \emph{in a stealthy secure way} to a server periodically. Then, the server 
+We have looked into different possible security proposals which could potentially be used for this project, i.e., securing the PLCs. Amongst available works, we found \cite{simbiote} and \cite{pillarbox} more relevant and applicable for this project. \cite{simbiote} proposes a host-based defense mechanism called Symbiotic Embedded
+Machines or ``SEM'' which adds an intrusion detection functionality to the firmware layer of an embedded system.  As the SEM structure
+operates alongside the native OS of the embedded device and not within it, it can
+inject generic defensive payloads into the target device regardless of it's original
+hardware or software. On the other hand, \cite{pillarbox} introduces an interesting tool called PillarBox for the purpose of securely relaying Security Analytics Sources (SASs) data to combat an adversary taking advantage of an advanced malware who can undetectably
+suppress or tamper with SAS messages in order to hide attack evidence and disrupt intrusion detection. Pillarbox provides two unique features: 
+\begin{itemize}
+	\item Integrity: By securing SAS data against tampering, even when such data is buffered on a compromised host within an adversarially controlled network.
+	\item Stealthiness: By concealing SAS data, alert-generation activity and potentially even alerting rules on a compromised
+	host, thus hiding select SAS alerting actions from an adversary.
+\end{itemize}
 
-To locate signs of likely security related incidents, this agent, which is installed on each plc, logs all the events on the controller (more specifically, input/output operations) and sends the logs to a server periodically for the purpose of anaylsis and intrusion detection. 
+ In this regard, in this project, by using the idea introduced in \cite{pillarbox},  we implemented a very lightweight HIDS module on the OpenPLC framework in order to keep track of input/output operations on the device. To locate signs of likely security related incidents, the HIDS's agent installed on each PLC, which we call it the \emph{Snapshotter}, logs all the events on the controller (more specifically, input/output operations). Then the Snapshotter sends the snapshot, which is indeed the log of operations happening on the PLC at a specific time,  in a \emph{stealthy and secure way} to a server periodically for the purpose of anaylsis and intrusion detection. 
+ 
+On the other hand, the implemented server first checks the integrity of the log itself (in case, the attacker has already compromised the device). Moreover, it has a predefined set of acceptable input/output pairs for each device and checks and the validity of the operations happening on the controller. If any of the previous incidents happens, i.e., whether the log's integrity check fails, or an operation is detected as invalid, a flag will be raised and an intrusion is indeed captured\footnote{Assuming no errors in the controller functionality itself. Note that, even if there is an error in the PLC functionality, our proposed method can capture it as well with the same procedure}. The server takes proper actions consequently which could be terminating the controller, revoking it from the network, or even recovering it to a clean/safe state.
 
-On the other hand, the implemented server has a predefined set of acceptable input/output pairs for each device and checks the integrity of the log itself (in case, the attacker has already compromised the device) and the validity of the operations happening on the controller. If any of the previous incidents happen, i.e., whether the log's integrity check fails, or an operation is detected as invalid, a flag will be raised and an intrusion is indeed captured\footnote{Assuming no errors in the controller functionality itself. Note that, even if there is error in the PLC functionality, our proposed method can capture it as well with same procedure}. The server takes proper actions consequently which could be terminating the controller, revoking it from the network, or even recovering it to a previous clean/safe state.
-
-For the log integrity checking feature, the server actually 
-
-For the operation validation purposes, the server actually traces deviations from predefined normal profile activities/behaviors of the input/output operations. Such profile activities could be generated based on the specific applications that the PLC is being used for. (see the comments in tex file)
+In order to have tamper-resistant logs, we use a forward-secure integrity protection mechanism in which the controller generate new keys after every alert generation and delete keys immediately after use \cite{pillarbox}. For the operation validation purposes, the server actually traces deviations from predefined acceptable normal profile activities of the input/output operations. Such profile activities could be generated based on the specific applications that the PLC is being used for. As an example, lets say the adversary somehow has root access to the system, and can generate some sort of malicious input/output pairs, such activity can be captured by our proposed method, since the adversary can not tamper the logs and the server will restore the PLC into its normal state by uploading a known valid logic into the PLC.
 %what are proper server responses in case of an intrusion???
 
-Our defense mechanism can be summarized in security related information gathering and logging, incident identification, and taking effective actions to foil such incidents.
-
-
-
+Our defense mechanism can be summarized in security related information gathering and secure logging, sending the logs to a server for the purpose of analysis, incident identification and taking effective actions by the server to foil such incidents. We explain each part in more detail in the following sections.
 

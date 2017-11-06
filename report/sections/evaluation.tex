@@ -1,22 +1,18 @@
+\section{Evaluation}
 
-\section{Introduction}
+In this section, we will evaluate our solution and implementation in terms of security and performance. 
 
-A host-based intrusion detection (HIDS) is commonly used for monitoring specific activities and characteristics of a single device by means of software or appliance-based components known as agents. In this regard, in this project, we implemented a very lightweight HIDS module on the OpenPLC framework in order to keep track of input/output operations on the device.
+\subsection{Security Analysis}
 
-To locate signs of likely security related incidents, the HIDS's agent, which we call it the \emph{snapshotter} agent, essentially, takes a snapshot of the input/output operations
-happening on each PLC and sends them \emph{in a stealthy secure way} to a server periodically. Then, the server 
+Our adversarial model is that we assume the adversary has the capability to upload malicious logic to the PLC that will generate erroneous outputs or further compromise the entire PLC. 
 
-To locate signs of likely security related incidents, this agent, which is installed on each plc, logs all the events on the controller (more specifically, input/output operations) and sends the logs to a server periodically for the purpose of anaylsis and intrusion detection. 
+In addition, we assume that the logging mechanism is working properly until a certain point after the compromise initiates. In other words, we assume there exist a time window that the attacker has initiated the intrusion, but the logging is still working properly. The overall timeline can be illustrated as Figure.~\ref{fig:timeline}. 
 
-On the other hand, the implemented server has a predefined set of acceptable input/output pairs for each device and checks the integrity of the log itself (in case, the attacker has already compromised the device) and the validity of the operations happening on the controller. If any of the previous incidents happen, i.e., whether the log's integrity check fails, or an operation is detected as invalid, a flag will be raised and an intrusion is indeed captured\footnote{Assuming no errors in the controller functionality itself. Note that, even if there is error in the PLC functionality, our proposed method can capture it as well with same procedure}. The server takes proper actions consequently which could be terminating the controller, revoking it from the network, or even recovering it to a previous clean/safe state.
-
-For the log integrity checking feature, the server actually 
-
-For the operation validation purposes, the server actually traces deviations from predefined normal profile activities/behaviors of the input/output operations. Such profile activities could be generated based on the specific applications that the PLC is being used for. (see the comments in tex file)
-%what are proper server responses in case of an intrusion???
-
-Our defense mechanism can be summarized in security related information gathering and logging, incident identification, and taking effective actions to foil such incidents.
-
-
-
-
+\begin{figure*}[h]
+  \centering
+    \includegraphics[width=\textwidth]{figs/timeline}
+    \caption{Time line of one compromise.}
+    \label{fig:timeline}
+\end{figure*}
+   
+\subsection{Performance Overhead}

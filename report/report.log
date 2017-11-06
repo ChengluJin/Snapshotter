@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9.6210 64-bit) (preloaded format=pdflatex 2017.1.18)  6 NOV 2017 10:02
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9.6210 64-bit) (preloaded format=pdflatex 2017.1.18)  6 NOV 2017 13:43
 entering extended mode
 **./report.tex
 (report.tex
@@ -271,33 +271,37 @@ LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10> not available
 
 (sections/abstract.tex) (sections/introduction.tex
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 11.
+(Font)              <7> on input line 13.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 11.
+(Font)              <5> on input line 13.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 11.
+(Font)              <8> on input line 20.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 11.
-) (sections/background.tex)
+(Font)              <6> on input line 20.
+)
 (sections/proposed_scheme.tex [1{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex
 .map}
 
 
-]) (sections/implementation.tex [2]
-Underfull \vbox (badness 2197) has occurred while \output is active []
+]
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-<figs/data_format.png, id=13, 604.13203pt x 127.97812pt>
+)
+(sections/implementation.tex [2]
+<figs/data_format.png, id=14, 604.13203pt x 127.97812pt>
 File: figs/data_format.png Graphic file (type png)
 
 <use figs/data_format.png>
 Package pdftex.def Info: figs/data_format.png used on input line 86.
 (pdftex.def)             Requested size: 516.0pt x 109.30916pt.
- [3]
+
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 ) (sections/evaluation.tex
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [3]
 <figs/timeline.png, id=21, 1061.46562pt x 364.36125pt>
 File: figs/timeline.png Graphic file (type png)
  <use figs/timeline.png>
@@ -307,7 +311,8 @@ Package pdftex.def Info: figs/timeline.png used on input line 13.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-) (sections/future_works.tex) (sections/conclusion.tex)
+) (sections/future_works.tex) (sections/conclusion.tex) [4 <./figs/data_format.
+png>]
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -319,25 +324,30 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-[4] [5 <./figs/data_format.png> <./figs/timeline.png>] (report.aux) ) 
+[5
+
+ <./figs/timeline.png>] (report.aux)
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ ) 
 Here is how much of TeX's memory you used:
  3096 strings out of 493333
- 48972 string characters out of 3139188
- 124472 words of memory out of 3000000
- 6572 multiletter control sequences out of 15000+200000
+ 48942 string characters out of 3139188
+ 124481 words of memory out of 3000000
+ 6575 multiletter control sequences out of 15000+200000
  39736 words of font info for 73 fonts, out of 3000000 for 9000
  1144 hyphenation exceptions out of 8191
  40i,8n,25p,1429b,282s stack positions out of 5000i,500n,10000p,200000b,50000s
-{E:/Progra
-m Files/MiKTeX 2.9/fonts/enc/dvips/base/8r.enc}<E:/Program Files/MiKTeX 2.9/fon
-ts/type1/public/amsfonts/cm/cmmi10.pfb><E:/Program Files/MiKTeX 2.9/fonts/type1
-/public/amsfonts/cm/cmr10.pfb><E:/Program Files/MiKTeX 2.9/fonts/type1/public/a
-msfonts/cm/cmsy10.pfb><E:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/
-cm/cmsy7.pfb><E:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmb8a.pfb><E:/
-Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmbi8a.pfb><E:/Program Files/Mi
-KTeX 2.9/fonts/type1/urw/times/utmr8a.pfb><E:/Program Files/MiKTeX 2.9/fonts/ty
-pe1/urw/times/utmri8a.pfb>
-Output written on report.pdf (5 pages, 163861 bytes).
+{E:/Program Files/MiKTeX 2.9/fonts/enc/dvips/base/8r.enc}<E:/Program Files/Mi
+KTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><E:/Program Files/MiKTeX 2.9
+/fonts/type1/public/amsfonts/cm/cmr10.pfb><E:/Program Files/MiKTeX 2.9/fonts/ty
+pe1/public/amsfonts/cm/cmsy10.pfb><E:/Program Files/MiKTeX 2.9/fonts/type1/publ
+ic/amsfonts/cm/cmsy7.pfb><E:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utm
+b8a.pfb><E:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmbi8a.pfb><E:/Prog
+ram Files/MiKTeX 2.9/fonts/type1/urw/times/utmr8a.pfb><E:/Program Files/MiKTeX 
+2.9/fonts/type1/urw/times/utmri8a.pfb>
+Output written on report.pdf (5 pages, 166006 bytes).
 PDF statistics:
  56 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)

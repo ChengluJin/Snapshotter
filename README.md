@@ -1,3 +1,9 @@
+# Snapshotter: Lightweight intrusion detection and prevention system for industrial control systems
+
+This repository contains the source codes produced by the UConn team in [CSAW Embedded System Challenge 2017](https://github.com/momalab/csaw_esc_2017). The team members are Chenglu Jin, Saeed Valizadeh, Mason Ginter, and Marten van Dijk (advisor). Also, the research findings of this project have been documented in ["Snapshotter: Lightweight intrusion detection and prevention system for industrial control systems"](https://ieeexplore.ieee.org/abstract/document/8390813) at IEEE International Conference on Industrial Cyber-Physical Systems in 2018.
+
+The source codes are based on [OpenPLC v2](https://github.com/thiagoralves/OpenPLC_v2), so you can compile and use the system just like OpenPLC v2. Our main modification is the introduction of stealth logging of security-related information. More details of the design of Snapshotter can be found in our paper ["Snapshotter: Lightweight intrusion detection and prevention system for industrial control systems"](https://ieeexplore.ieee.org/abstract/document/8390813). 
+
 # OpenPLC v2
 This program is intended to emulate a PLC on a Linux machine. This virtual PLC uses the OpenPLC Software Stack to execute IEC 61131-3 programs and reply to MODBUS/TCP requests. Programs can be created using the PLCopen editor and then uploaded to this virtual PLC.
 
